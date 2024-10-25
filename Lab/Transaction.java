@@ -4,10 +4,11 @@ import java.util.LinkedList;
 public class Transaction{
     private LinkedList<Operation> operations;
     // Add id for each transaction
-    
+    private int id;
 
-    public Transaction(){
+    public Transaction(int id){
         operations = new LinkedList<Operation>();
+        this.id = id;
     }
     
     public void addOperation(Operation o){
