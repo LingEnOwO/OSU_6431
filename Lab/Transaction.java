@@ -10,6 +10,12 @@ public class Transaction{
         operations = new LinkedList<Operation>();
         this.id = id;
     }
+    public void setId(int id){
+        this.id = id;
+    }
+    public int getId(){
+        return id;
+    }
     
     public void addOperation(Operation o){
         operations.add(o);
