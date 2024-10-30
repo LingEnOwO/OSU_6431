@@ -1,7 +1,7 @@
 import java.util.List;
 import java.util.LinkedList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
+import java.util.ArrayList;
+
 
 public class Database1{
 
@@ -14,8 +14,61 @@ public class Database1{
         }
     }
      
+    public void executeTransactions(List<Transaction> transactions) {
+        // List to keep track of all threads
+        List<Thread> threads = new ArrayList<>();
+    
+        for (Transaction t : transactions) {
+            // Create a new thread for each transaction
+            Thread transactionThread = new Thread(() -> {
+                // Acquire all locks before starting transaction (Strict 2PL)
+                try {
+                    for (Operation o : t.getOperations()) {
+                        if (o.getType() == 0) { // READ operation
+                            rows[o.getRowNumber()].getLock().readLock().lock();
+                        } else { // WRITE operation
+                            rows[o.getRowNumber()].getLock().writeLock().lock();
+                        }
+                    }
+    
+                    // Execute all operations after acquiring locks
+                    for (Operation o : t.getOperations()) {
+                        System.out.println("T" + t.getId() + " is executing " + o);
+                        if (o.getType() == 0) { // READ operation
+                            o.setValue(rows[o.getRowNumber()].getValue());
+                        } else { // WRITE operation
+                            rows[o.getRowNumber()].setValue(o.getValue());
+                        }
+                    }
+                } finally {
+                    // Release all locks after transaction is done
+                    for (Operation o : t.getOperations()) {
+                        if (o.getType() == 0) { // READ operation
+                            rows[o.getRowNumber()].getLock().readLock().unlock();
+                        } else { // WRITE operation
+                            rows[o.getRowNumber()].getLock().writeLock().unlock();
+                        }
+                    }
+                }
+            });
+    
+            // Add the thread to the list and start it
+            threads.add(transactionThread);
+            transactionThread.start();
+        }
+    
+        // Wait for all threads to finish
+        for (Thread thread : threads) {
+            try {
+                thread.join(); // Wait for this thread to finish
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
 
-    public void executeTransactions(List<Transaction> transactions){
+    /*public void executeTransactions(List<Transaction> transactions){
         //Here I provide a serial implementation. You need to change it to a concurrent execution.
         ExecutorService executor = Executors.newFixedThreadPool(transactions.size());
         System.out.println("Concurrent execution:");
@@ -59,7 +112,7 @@ public class Database1{
         while (!executor.isTerminated()) {
             // Wait for all transactions to complete
         }
-    }
+    }*/
 
     public void serialExecution(List<Transaction> transactions) {
         System.out.println("Serial Execution:");
@@ -91,8 +144,8 @@ public class Database1{
         
         Transaction t2 = new Transaction(2);
         t2.addOperation(new Operation(1, 4, 75)); 
-        t2.addOperation(new Operation(0, 1, 0)); 
-        t2.addOperation(new Operation(1, 3, 30)); 
+        t2.addOperation(new Operation(0, 5, 0)); 
+        t2.addOperation(new Operation(1, 6, 30)); 
     
     
         LinkedList<Transaction> batch = new LinkedList<>();
@@ -101,7 +154,6 @@ public class Database1{
         
         Database1 db = new Database1();
         Test Test = new Test();
-        //System.out.println("Concurrent execution:");
         boolean isSerializable = Test.verifySerializability(batch, db);
 
         if (isSerializable) {

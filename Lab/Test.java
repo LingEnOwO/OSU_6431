@@ -56,4 +56,25 @@ public class Test {
         
         return false; // No matching serial execution found, not serializable
     }
+
+    public boolean verifySerializability(List<Transaction> transactions, Database2 db) {
+        // Step 1: Execute concurrent version and capture final state
+        Database1 concurrentDb = new Database1();
+        concurrentDb.executeTransactions(transactions);
+        Row[] concurrentState = concurrentDb.getRowsCopy();
+
+        // Step 2: Generate all possible serial executions
+        List<List<Transaction>> allPermutations = generatePermutations(transactions);
+
+        // Step 3: Compare the final state from concurrent execution with each serial state
+        for (List<Transaction> serialTransactions : allPermutations) {
+            Database1 serialDb = new Database1();
+            serialDb.serialExecution(serialTransactions);
+            if (compareDatabaseStates(concurrentState, serialDb.getRowsCopy())) {
+                return true; // Found an equivalent serial execution
+            }
+        }
+        
+        return false; // No matching serial execution found, not serializable
+    }
 }

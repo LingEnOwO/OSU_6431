@@ -17,7 +17,7 @@ public class Row{
         this.value = value;
     }
 
-    public ReentrantReadWriteLock getlock(){
+    public ReentrantReadWriteLock getLock(){
         return lock;
     }
 }
