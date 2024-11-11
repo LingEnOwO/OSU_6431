@@ -17,8 +17,8 @@ public class Transaction{
         return id;
     }
     
-    public void addOperation(Operation o){
-        operations.add(o);
+    public void addOperation(int type, int rowNumber, int value) {
+        operations.add(new Operation(id, type, rowNumber, value));
     }
 
     public List<Operation> getOperations(){

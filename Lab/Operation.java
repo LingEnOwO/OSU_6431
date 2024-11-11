@@ -2,13 +2,19 @@ public class Operation{
     private int type; //0 for READ and 1 for WRITE
     private int rowNumber; //which row to read or write
     private int value; //for read, this is the return value; for write, this is the value to write;
+    private int transactionId; // the ID of the transaction this operation belongs to
 
-    public Operation(int type, int rowNumber, int value){
+    public Operation(int transactionId, int type, int rowNumber, int value){
+        this.transactionId = transactionId;
         this.type = type;
         this.rowNumber = rowNumber;
         this.value = value;
     }
-
+    
+    public int getTransactionId(){
+        return this.transactionId;
+    }
+    
     public int getType(){
         return this.type;
     }
@@ -27,9 +33,9 @@ public class Operation{
 
     public String toString(){
 	if(type == 0)
-             return "READ row "+rowNumber;
-        else
-             return "WRITE row "+rowNumber+" value "+value;	
+        return "READ row "+rowNumber+" value "+value;
+    else
+        return "WRITE row "+rowNumber+" value "+value;	
     }
 
 }

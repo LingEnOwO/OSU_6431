@@ -15,6 +15,14 @@ public class Test {
         return true;
     }
 
+    private void print(List<Transaction> serialTransactions){
+        System.out.print("The equivalent serial log: ");
+        for (Transaction item : serialTransactions) {
+            System.out.print("T" + item.getId() + " ");
+        }
+        System.out.println();
+    }
+
     // Method to generate all permutations of transactions
     private List<List<Transaction>> generatePermutations(List<Transaction> transactions) {
         List<List<Transaction>> result = new ArrayList<>();
@@ -36,41 +44,16 @@ public class Test {
     }
 
     // Test method to verify if concurrent execution is serializable
-    public boolean verifySerializability(List<Transaction> transactions, Database1 db) {
-        // Step 1: Execute concurrent version and capture final state
-        Database1 concurrentDb = new Database1();
-        concurrentDb.executeTransactions(transactions);
-        Row[] concurrentState = concurrentDb.getRowsCopy();
-
+    public boolean verifySerializability(List<Transaction> transactions, Row[] concurrentState) {
         // Step 2: Generate all possible serial executions
         List<List<Transaction>> allPermutations = generatePermutations(transactions);
 
         // Step 3: Compare the final state from concurrent execution with each serial state
         for (List<Transaction> serialTransactions : allPermutations) {
             Database1 serialDb = new Database1();
-            serialDb.serialExecution(serialTransactions);
+            serialDb.serialExecution(serialTransactions);  // This should execute transactions serially
             if (compareDatabaseStates(concurrentState, serialDb.getRowsCopy())) {
-                return true; // Found an equivalent serial execution
-            }
-        }
-        
-        return false; // No matching serial execution found, not serializable
-    }
-
-    public boolean verifySerializability(List<Transaction> transactions, Database2 db) {
-        // Step 1: Execute concurrent version and capture final state
-        Database1 concurrentDb = new Database1();
-        concurrentDb.executeTransactions(transactions);
-        Row[] concurrentState = concurrentDb.getRowsCopy();
-
-        // Step 2: Generate all possible serial executions
-        List<List<Transaction>> allPermutations = generatePermutations(transactions);
-
-        // Step 3: Compare the final state from concurrent execution with each serial state
-        for (List<Transaction> serialTransactions : allPermutations) {
-            Database1 serialDb = new Database1();
-            serialDb.serialExecution(serialTransactions);
-            if (compareDatabaseStates(concurrentState, serialDb.getRowsCopy())) {
+                print(serialTransactions);
                 return true; // Found an equivalent serial execution
             }
         }
