@@ -45,19 +45,19 @@ public class Test {
 
     // Test method to verify if concurrent execution is serializable
     public boolean verifySerializability(List<Transaction> transactions, Row[] concurrentState) {
-        // Step 2: Generate all possible serial executions
+        // Generate all possible serial executions
         List<List<Transaction>> allPermutations = generatePermutations(transactions);
 
-        // Step 3: Compare the final state from concurrent execution with each serial state
+        // Compare the final state from concurrent execution with each serial state
         for (List<Transaction> serialTransactions : allPermutations) {
             Database1 serialDb = new Database1();
-            serialDb.serialExecution(serialTransactions);  // This should execute transactions serially
+            serialDb.serialExecution(serialTransactions);  
             if (compareDatabaseStates(concurrentState, serialDb.getRowsCopy())) {
                 print(serialTransactions);
-                return true; // Found an equivalent serial execution
+                return true; 
             }
         }
         
-        return false; // No matching serial execution found, not serializable
+        return false; 
     }
 }

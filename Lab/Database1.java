@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -24,7 +25,10 @@ public class Database1 {
 
             try {
                 // Step 1: Acquire all locks for the transaction upfront (Strict 2PL)
-                for (Operation o : t.getOperations()) {
+                List<Operation> sortedOperations = new ArrayList<>(t.getOperations());
+                sortedOperations.sort(Comparator.comparingInt(Operation::getRowNumber)); // Sort by row number
+
+                for (Operation o : sortedOperations) {
                     ReentrantReadWriteLock lock = rows[o.getRowNumber()].getLock();
                     if (o.getType() == 0) { // READ operation
                         lock.readLock().lock();
@@ -33,6 +37,7 @@ public class Database1 {
                     }
                     acquiredLocks.add(lock); // Track acquired locks
                 }
+
                 allLocksAcquired = true;
 
                 // Step 2: Execute all operations after acquiring locks
@@ -108,24 +113,24 @@ public class Database1 {
 
         // Define transactions
         Transaction t1 = new Transaction(1);
-        //t1.addOperation(0, 3, 0); // READ row 3
-        //t1.addOperation(1, 4, 50); // WRITE row 4 value 50
-        //t1.addOperation(0, 5, 0); // READ row 5
+        t1.addOperation(0, 3, 0); 
+        t1.addOperation(1, 4, 50); 
+        t1.addOperation(0, 5, 0); 
         t1.addOperation(1, 1, 50);
         t1.addOperation(0, 2, 0);
 
         Transaction t2 = new Transaction(2);
-        //t2.addOperation(1, 3, 75); // WRITE row 3 value 75
-        //t2.addOperation(0, 4, 0); // READ row 4
-        //t2.addOperation(1, 5, 30); // WRITE row 5 value 30
-        t2.addOperation(1, 2, 7);
-        t2.addOperation(0, 3, 0);
+        t2.addOperation(1, 3, 75); 
+        t2.addOperation(0, 4, 0); 
+        t2.addOperation(1, 5, 30); 
+        t2.addOperation(1, 7, 7);
+        t2.addOperation(0, 9, 0);
 
         Transaction t3 = new Transaction(3);
-        //t3.addOperation(0, 2, 0); // READ row 2
-        //t3.addOperation(1, 1, 20); // WRITE row 1 value 20
-        //t3.addOperation(0, 4, 0); // READ row 4
-        t3.addOperation(1, 3, 10);
+        t3.addOperation(0, 21, 0); 
+        t3.addOperation(1, 13, 20); 
+        t3.addOperation(0, 44, 0); 
+        t3.addOperation(1, 32, 10);
         t3.addOperation(0, 1, 0);
         // Add transactions to list
         LinkedList<Transaction> batch = new LinkedList<>();

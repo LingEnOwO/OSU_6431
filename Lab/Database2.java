@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.CountDownLatch;
 
 public class Database2 {
 
@@ -22,7 +21,7 @@ public class Database2 {
         }
 
         for (int i = 0; i < NUM_THREADS; i++) {
-            queues.add(new LinkedBlockingQueue<>()); // Dynamic capacity
+            queues.add(new LinkedBlockingQueue<>()); 
         }
     }
 
@@ -42,7 +41,7 @@ public class Database2 {
         try {
             for (Transaction t : transactions) {
                 for (Operation o : t.getOperations()) {
-                    operationLog.add(o); // Add operation to the log for graph analysis
+                    operationLog.add(o); 
                 }
                 queues.get(0).put(t);
             }
@@ -135,12 +134,21 @@ public class Database2 {
         Transaction t1 = new Transaction(1);
         t1.addOperation(1, 3, 5);  // Read row 3
         t1.addOperation(1, 4, 5);  // Write 5 to row 4
+        t1.addOperation(0, 3, 0); 
+        t1.addOperation(1, 4, 50); 
+        t1.addOperation(0, 5, 0); 
     
         Transaction t2 = new Transaction(2);
+        t2.addOperation(1, 3, 75); 
+        t2.addOperation(0, 4, 0); 
+        t2.addOperation(1, 5, 30); 
         t2.addOperation(0, 3, 0); // Write 99 to row 3
         t2.addOperation(0, 14, 0); // Read row 14
     
         Transaction t3 = new Transaction(3);
+        t3.addOperation(0, 2, 0); 
+        t3.addOperation(1, 1, 20); 
+        t3.addOperation(0, 4, 0); 
         t3.addOperation(1, 4, 10); // Read row 24
         t3.addOperation(1, 27, 15); // Write 15 to row 27
     
